@@ -262,12 +262,15 @@ if (string.sub(iMushclientVersion, -4) == "-pre") then
 end
 iMushclientVersion = tonumber(iMushclientVersion)
 
+bIsWindows = GetInfo(268) < 100
+
+sPathSep = bIsWindows and "\\" or "/"
+
 -- *******************************************************
 -- * Check for automatic \maps\ path in plugin location: *
 -- *******************************************************
 if (sQuowMapPath == "") then
-  sQuowMapPath = ".\\quow_plugins\\maps\\"
-  --sQuowMapPath = (GetPluginInfo(sMinimapID, 20)) .. "maps\\"
+  sQuowMapPath = "." .. sPathSep .. "quow_plugins" .. sPathSep .. "maps" .. sPathSep
 end
 Note("")
 ColourNote(sCOLOUR.orange, "", "Quow's Cow Bar Notice:")
@@ -567,7 +570,7 @@ while (iDBStatus ~= 0 and iDBAttempts < 2) do
   ColourNote(sCOLOUR.orange, "", "Please navigate to and select the folder in the popup window!")
   sNewMapPath = utils.directorypicker("Fatal Error!\nCannot find Quow's Cow Bar database!\nPlease locate your \\maps\\ folder:", "")
   if (sNewMapPath ~= nil) then
-    sQuowMapPath = sNewMapPath .. "\\"
+    sQuowMapPath = sNewMapPath .. sPathSep
   end
   sDatabaseFile = sQuowMapPath .. "_quowmap_database.db"
   iDBStatus = DatabaseOpen("dbMap", sDatabaseFile, 1)
@@ -13759,7 +13762,7 @@ function QuowHandleScoreBrief(sName, sLine, wildcards, styles)
   OnPluginMXPsetEntity("hp="..wildcards[1], true)
   OnPluginMXPsetEntity("gp="..wildcards[3], true)
   -- Also ignore xp if no burden to avoid broken combat monitors
-  if (wildcards[6] ~= "") then
+  if (wildcards[6] ~= "" and wildcards[6] ~= nil) then
     OnPluginMXPsetEntity("xp="..wildcards[5], true)
     OnPluginMXPsetEntity ("burden=" .. wildcards[6], true)
   else
@@ -14430,7 +14433,7 @@ function TriggersShowHide()
     -- You defend an enemy special
     SetTriggerOption(tostring("QuowSpecialFailIncCat" .. iN), "omit_from_output", sUSER_OPTIONS["omit_special_inc_fail"])
     -- Enemy hits you with a special
-    SetTriggerOption(tostring("QuowSpecialSuccessIncCat" .. iN), "omit_from_output", sUSER_OPTIONS["omit_col_special_inc_success"])
+    SetTriggerOption(tostring("QuowSpecialSuccessIncCat" .. iN), "omit_from_output", sUSER_OPTIONS["omit_special_inc_success"])
     -- Third party defends special
     SetTriggerOption(tostring("StatsSpecialFailThirdCat" .. iN), "omit_from_output", sUSER_OPTIONS["omit_special_third_fail"])
     -- Third party hits special
@@ -22923,7 +22926,7 @@ end
 -- Pick a font size and return it
 function QuowPickFontSize(sCurrentFontSize, sForWindowTitle)
   local iNewFontSize = 0
-  local sPopupResult = utils.inputbox("Please enter a custom font-size for the " .. sForWindowTitle .. " window.\n\nNote: Not all fonts support all sizes, try between 8 to 16.\n", sForWindowTitle .. " Font Size", sCurrentFontSize, "", 12 )
+  local sPopupResult = utils.inputbox("Please enter a custom font-size for the " .. sForWindowTitle .. " window.\n\nNote: Not all fonts support all sizes, try between 8 to 16.\n", sForWindowTitle .. " Font Size", tostring(sCurrentFontSize), "", 12 )
   if (sPopupResult ~= nil) then
     iNewFontSize = tonumber(sPopupResult)
     if (iNewFontSize == nil) then
@@ -24105,8 +24108,6 @@ function OnPluginClose()
   if GetPluginInfo (sMinimapID, 17) then
     OnPluginDisable()
   end -- if enabled
-  -- Reset text rectangle
-  TextRectangle(iOldTextRectangleData[1], iOldTextRectangleData[2], iOldTextRectangleData[3], iOldTextRectangleData[4], 1, 0, 0, 0, 0)
 end -- function OnPluginClose
 
 
